@@ -124,24 +124,6 @@ int lectura(int **&flujos, int **&distancias, string fichero) {
  * @param tam Numero de casos a evaluar
  * @return Vector de potenciales
  */
-int *potencial(int **v, int &tam) {
-    int *pot = new int[tam];
-
-    for (int i = 0; i < tam; i++) {
-        pot[i] = 0;
-        for (int j = 0; j < tam; j++) {
-            pot[i] += v[j][i];
-        }
-    }
-    return pot;
-}
-
-/**
- * Calcula el vector de potenciales
- * @param v Matriz a partir de la cual calcular los potenciales
- * @param tam Numero de casos a evaluar
- * @return Vector de potenciales
- */
 int *potencialGRASP(int **v, int &tam) {
     int *pot = new int[tam];
 
@@ -246,50 +228,6 @@ int factorizacion(int* v, int tam, int **flujos, int** distancias, int r, int s)
 }
 
 /**
- * Algoritmo para la busqueda local de una solucion
- * 
- * @param nCasos Tamaño del problema
- * @param flujos Matriz de flujos
- * @param distancias Matriz de distancias
- * @param seed Semilla a utilizar
- * @return Vector solucion
- */
-int *busquedaLocal(int nCasos, int **flujos, int **distancias, int seed) {
-    int* solucionActual = solInicial(nCasos, seed);
-    int costo = coste(solucionActual, nCasos, distancias, flujos);
-    bitset<100> dlb(0);
-    bool mejora = false;
-    for (int i = nCasos; i < 100; i++) {
-        dlb.flip(i);
-    }
-    while (!dlb.all()) {
-        for (int i = 0; i < nCasos; i++) {
-            if (!dlb.test(i)) {
-                mejora = false;
-                for (int j = 0; j < nCasos; j++) {
-                    if (!dlb.test(j)) {
-                        int variacion = factorizacion(solucionActual, nCasos, flujos, distancias, i, j);
-                        if (variacion < 0) {
-                            costo += variacion;
-                            int tmp = solucionActual[j];
-                            solucionActual[j] = solucionActual[i];
-                            solucionActual[i] = tmp;
-                            dlb.reset(i);
-                            dlb.reset(j);
-                            mejora = true;
-                        }
-                    }
-                }
-                if (!mejora) {
-                    dlb.set(i);
-                }
-            }
-        }
-    }
-    return solucionActual;
-}
-
-/**
  *  * Algoritmo para la busqueda local de una solucion
  * 
  * @param nCasos Tamaño del problema
@@ -357,7 +295,7 @@ int *randomGreedy(int nCasos, int **flujos, int **distancias, int seed) {
     float umbralFlujo = potFlujos[mayorFlujo] - alfa * (potFlujos[mayorFlujo] - potFlujos[menor(potFlujos, nCasos)]);
 
     int menorDistancia = menor(potDistancias, nCasos);
-    float umbralDistancia = potFlujos[menorDistancia] - alfa * (potFlujos[mayor(potDistancias, nCasos)] - potFlujos[menorDistancia]);
+    float umbralDistancia = potDistancias[menorDistancia] - alfa * (potDistancias[mayor(potDistancias, nCasos)] - potDistancias[menorDistancia]);
 
     // Creacion de las LRC
     vector<int> LRCU;
@@ -447,6 +385,7 @@ int *GRASP(int nCasos, int **flujos, int **distancias, int seed){
     int *solucion;
     int *solucionPrima;
     int cont = 1;
+    
     while(cont < repeticionesGRASP){
         solucion = randomGreedy(nCasos, flujos, distancias, seed);
         solucionPrima = busquedaLocal(nCasos, flujos, distancias, seed, solucion);
@@ -464,4 +403,59 @@ int *GRASP(int nCasos, int **flujos, int **distancias, int seed){
         cont++;
     }
     return solFinal;
+}
+
+
+/**
+ * Desarrollo del algoritmo voraz para encontrar una solucion
+ * @param flujos Matriz de flujos
+ * @param distancias Matriz de distancias
+ * @param solGreedy Vector a rellenar con una solucion
+ * @param nCasos Tamaño del problema
+ * @return Coste de la solucion
+ */
+int greedy(int **flujos, int **distancias, int *&solGreedy, int nCasos) {
+    int *potFlujos = potencial(flujos, nCasos);
+    int *potDistancias = potencial(distancias, nCasos);
+    solGreedy = new int[nCasos];
+    int cont = nCasos;
+    int cost;
+    while (cont > 0) {
+        int may = mayor(potFlujos, nCasos);
+        int men = menor(potDistancias, nCasos);
+        if (may != -1 && men != -1) {
+            potFlujos[may] = -1;
+            potDistancias[men] = 999999;
+            solGreedy[may] = men;
+            cont--;
+        } else {
+            break;
+        }
+    }
+
+    int costo;
+    if (cont == 0) {
+        costo = coste(solGreedy, nCasos, flujos, distancias);
+        return costo;
+    } else {
+        return -1;
+    }
+}
+
+/**
+ * Calcula el vector de potenciales
+ * @param v Matriz a partir de la cual calcular los potenciales
+ * @param tam Numero de casos a evaluar
+ * @return Vector de potenciales
+ */
+int *potencial(int **v, int &tam) {
+    int *pot = new int[tam];
+
+    for (int i = 0; i < tam; i++) {
+        pot[i] = 0;
+        for (int j = 0; j < tam; j++) {
+            pot[i] += v[j][i];
+        }
+    }
+    return pot;
 }
