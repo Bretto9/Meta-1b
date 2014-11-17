@@ -2,6 +2,8 @@
 #define l 10 // Numero de mejores candidatos a generar
 #define alfa 0.3
 #define repeticionesGRASP 25
+#define numIteraciones 25
+
 /**
  * Dado un vector de enteros, devuelve la posicion del mayor de sus elementos
  * @param v Vector en el que buscar
@@ -307,7 +309,7 @@ int *randomGreedy(int nCasos, int **flujos, int **distancias, int seed) {
     p.first = false;
     p.second = false;
     asignado.resize(nCasos, p);
-    
+
     // Creacion de la primera LRC
     for (int i = 0; i < nCasos; i++) {
         if (potFlujos[i] >= umbralFlujo) {
@@ -317,22 +319,22 @@ int *randomGreedy(int nCasos, int **flujos, int **distancias, int seed) {
             LRCL.push_back(i);
         }
     }
-//    cout << "Umbral Distancia: " << umbralDistancia << endl;
-//    cout << "Distancias: ";
-//    for(int i= 0; i< nCasos;i++){
-//        cout << potDistancias[i] << " ";
-//    }
-    
+    //    cout << "Umbral Distancia: " << umbralDistancia << endl;
+    //    cout << "Distancias: ";
+    //    for(int i= 0; i< nCasos;i++){
+    //        cout << potDistancias[i] << " ";
+    //    }
+
     // Seleccion de la primera Asignacion
     int randomFlujoA = rand() % LRCU.size();
     int randomDistanciaA = rand() % LRCL.size();
 
-    
+
     solInicial[randomFlujoA] = randomDistanciaA;
     asignado.at(randomFlujoA).first = true;
     asignado.at(randomDistanciaA).second = true;
     nAsignaciones = 1;
-    
+
     // Seleccion de la segunda Asignacion
     while (nAsignaciones == 1) {
         int randomFlujoB = rand() % LRCU.size();
@@ -361,45 +363,45 @@ int *randomGreedy(int nCasos, int **flujos, int **distancias, int seed) {
                 }
             }
         }
-        
+
         // Ordenacion por coste
         sort(LRC.begin(), LRC.end(), comparador);
         float umbral = LRC.back().first + alfa * (LRC.front().first - LRC.back().first);
         int pos = 0;
         if (LRC.size() > 1) {
-            while (pos < LRC.size()-1 && LRC.at(pos).first <= umbral) {
+            while (pos < LRC.size() - 1 && LRC.at(pos).first <= umbral) {
                 pos++;
             }
             if (pos > 0) {
                 pos -= 1;
             }
         }
-        
+
         // Realizacion de asignacion
         solInicial[LRC[pos].second.first] = LRC[pos].second.second;
         asignado[LRC[pos].second.first].first = true;
         asignado[LRC[pos].second.second].second = true;
         nAsignaciones++;
     }
-    
+
     return solInicial;
 }
 
-int *GRASP(int nCasos, int **flujos, int **distancias, int seed){
+int *GRASP(int nCasos, int **flujos, int **distancias, int seed) {
     int *solFinal = new int[nCasos];
     int *solucion;
     int *solucionPrima;
     int cont = 1;
-    
-    while(cont < repeticionesGRASP){
+
+    while (cont < repeticionesGRASP) {
         solucion = randomGreedy(nCasos, flujos, distancias, seed);
         solucionPrima = busquedaLocal(nCasos, flujos, distancias, seed, solucion);
-        if(cont == 1){
-            for(int i = 0; i < nCasos; i++){
+        if (cont == 1) {
+            for (int i = 0; i < nCasos; i++) {
                 solFinal[i] = solucionPrima[i];
             }
-        } else if(coste(solucionPrima, nCasos, distancias, flujos) < coste(solFinal, nCasos, distancias, flujos)){
-            for(int i = 0; i < nCasos; i++){
+        } else if (coste(solucionPrima, nCasos, distancias, flujos) < coste(solFinal, nCasos, distancias, flujos)) {
+            for (int i = 0; i < nCasos; i++) {
                 solFinal[i] = solucionPrima[i];
             }
         }
@@ -409,7 +411,6 @@ int *GRASP(int nCasos, int **flujos, int **distancias, int seed){
     }
     return solFinal;
 }
-
 
 /**
  * Desarrollo del algoritmo voraz para encontrar una solucion
@@ -463,4 +464,72 @@ int *potencial(int **v, int &tam) {
         }
     }
     return pot;
+}
+
+/**
+ * 
+ * @param solucion vector solucion actual
+ * @param nCasos tamaño del problema 
+ * @param seed semilla
+ * @return 
+ */
+int* mutar(int* solucion, int nCasos, int seed) {
+    int tamSublista = nCasos / 4;
+    int srand(seed);
+    int aleatorio;
+    int posIni = rand() % nCasos;
+    int* usados = new int[tamSublista];
+
+    int temp = posIni;
+    for (int i = 0; i < tamSublista; i++) {
+        usados[i] = solucion[temp];
+        solucion[temp] = -1;
+        temp++;
+        if (temp >= nCasos) {
+            temp = 0;
+        }
+    }
+    int temp2 = posIni;
+    for (int i = 0; i < tamSublista; i++) {
+        do {
+            aleatorio = rand() % tamSublista;
+        } while (usados[aleatorio] == -1);
+
+        solucion[temp2] = usados[aleatorio];
+        temp2++;
+        if (temp2 >= nCasos) {
+            temp2 = 0;
+        }
+        usados[aleatorio] = -1;
+    }
+    return solucion;
+
+}
+
+/**
+ * 
+ * @param nCasos tamaño del problema
+ * @param flujos matriz de flujos
+ * @param distancias matriz distancias
+ * @param seed semilla
+ * @return 
+ */
+int* ils(int nCasos, int **flujos, int **distancias, int seed) {
+    int* soluInicial = solInicial(nCasos, seed);
+    int* solActual = busquedaLocal(nCasos, flujos, distancias, seed, soluInicial);
+    int* solMutada = new int[nCasos];
+    int *solLocal = new int[nCasos];
+    int costeLocal;
+    int costeAct = coste(solActual, nCasos, distancias, flujos);
+
+    for (int i = 0; i < numIteraciones; i++) {
+        solMutada = mutar(solActual, nCasos, seed);
+        solLocal = busquedaLocal(nCasos, flujos, distancias, seed, solMutada);
+        costeLocal = coste(solLocal, nCasos, distancias, flujos);
+        if (costeLocal < costeAct) {
+            solActual = solLocal;
+            costeAct = costeLocal;
+        }
+    }
+    return solActual;
 }

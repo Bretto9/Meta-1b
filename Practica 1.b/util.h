@@ -39,5 +39,12 @@ int *GRASP(int nCasos, int **flujos, int **distancias, int seed);
 int *potencial(int **v, int &tam);
 
 int greedy(int **flujos, int **distancias, int *&solGreedy, int nCasos);
+
+int* solInicial(int tam, int seed);
+
+int* mutar(int* solucion, int nCasos, int seed);
+
+int* ils(int nCasos, int **flujos, int **distancias, int seed);
+
 #endif	/* UTIL_H */
 
