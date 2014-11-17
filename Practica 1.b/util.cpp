@@ -406,8 +406,6 @@ int *GRASP(int nCasos, int **flujos, int **distancias, int seed) {
                 solFinal[i] = solucionPrima[i];
             }
         }
-        delete[] solucion;
-        delete[] solucionPrima;
         cont++;
     }
     return solFinal;
@@ -535,8 +533,5 @@ int* ils(int nCasos, int **flujos, int **distancias, int seed) {
             costeAct = costeLocal;
         }
     }
-    delete[] solMutada;
-    delete[] soluInicial;
-    delete[] solLocal;
     return solActual;
 }

@@ -18,10 +18,7 @@ int main(int argc, char** argv) {
     int **distancias = 0;
     int costo;
     int nCasos = 0;
-
-    int *solGrasp;
     int *solGreedy;
-    int *solILS;
     string fichero = "dat/els19.dat";
     string ficheros[20] = {"dat/els19.dat", "dat/chr20a.dat", "dat/chr25a.dat", "dat/nug25.dat",
         "dat/bur26a.dat", "dat/bur26b.dat", "dat/tai30a.dat", "dat/tai30b.dat",
@@ -47,14 +44,14 @@ int main(int argc, char** argv) {
         cout << costo << " " << elapsedTime << " ";
 
         QueryPerformanceCounter(&t1);
-        solGrasp = GRASP(nCasos, flujos, distancias, seed);
+        int *solGrasp = GRASP(nCasos, flujos, distancias, seed);
         costo = coste(solGrasp, nCasos, distancias, flujos);
         QueryPerformanceCounter(&t2);
         elapsedTime = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
         cout << costo << " " << elapsedTime << " ";
 
         QueryPerformanceCounter(&t1);
-        solILS = ils(nCasos, flujos, distancias, seed);
+        int *solILS = ils(nCasos, flujos, distancias, seed);
         costo = coste(solILS, nCasos, distancias, flujos);
         QueryPerformanceCounter(&t2);
         elapsedTime = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
