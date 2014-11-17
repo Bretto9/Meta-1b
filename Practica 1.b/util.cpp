@@ -310,18 +310,24 @@ int *randomGreedy(int nCasos, int **flujos, int **distancias, int seed) {
     
     // Creacion de la primera LRC
     for (int i = 0; i < nCasos; i++) {
-        if (potFlujos[i] > umbralFlujo) {
+        if (potFlujos[i] >= umbralFlujo) {
             LRCU.push_back(i);
         }
-        if (potDistancias[i] > umbralDistancia) {
+        if (potDistancias[i] >= umbralDistancia) {
             LRCL.push_back(i);
         }
     }
+//    cout << "Umbral Distancia: " << umbralDistancia << endl;
+//    cout << "Distancias: ";
+//    for(int i= 0; i< nCasos;i++){
+//        cout << potDistancias[i] << " ";
+//    }
     
     // Seleccion de la primera Asignacion
     int randomFlujoA = rand() % LRCU.size();
     int randomDistanciaA = rand() % LRCL.size();
 
+    
     solInicial[randomFlujoA] = randomDistanciaA;
     asignado.at(randomFlujoA).first = true;
     asignado.at(randomDistanciaA).second = true;
@@ -361,8 +367,7 @@ int *randomGreedy(int nCasos, int **flujos, int **distancias, int seed) {
         float umbral = LRC.back().first + alfa * (LRC.front().first - LRC.back().first);
         int pos = 0;
         if (LRC.size() > 1) {
-            while (LRC.at(pos).first <= umbral && pos < LRC.size()) {
-                //cout << LRC[pos].first << endl;
+            while (pos < LRC.size()-1 && LRC.at(pos).first <= umbral) {
                 pos++;
             }
             if (pos > 0) {

@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
 
     int *solGrasp;
     int *solGreedy;
-    string fichero = "dat/tai50a.dat";
+    string fichero = "dat/esc32a.dat";
     string ficheros[20] = {"dat/els19.dat", "dat/chr20a.dat", "dat/chr25a.dat", "dat/nug25.dat",
         "dat/bur26a.dat", "dat/bur26b.dat", "dat/tai30a.dat", "dat/tai30b.dat",
         "dat/esc32a.dat", "dat/kra32.dat", "dat/tai35a.dat", "dat/tai35b.dat",
@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
         nCasos = lectura(flujos, distancias, fichero);
         cout << "Leyendo fichero... " << fichero << " " << nCasos << endl;
         costo = greedy(flujos, distancias, solGreedy, nCasos);
-        cout << costo << endl;
+        cout << costo;
 
         solGrasp = GRASP(nCasos, flujos, distancias, seed);
         costo = coste(solGrasp, nCasos, distancias, flujos);
