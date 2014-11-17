@@ -151,7 +151,7 @@ int coste(int *v, int tam, int **distancias, int **flujos) {
     int costo = 0;
     for (int i = 0; i < tam; i++) {
         for (int j = 0; j < tam; j++) {
-            costo += (flujos[i][j])*(distancias[v[i]][v[j]]);
+            costo += (flujos[i][j]) * (distancias[v[i]][v[j]]);
         }
     }
     return costo;
@@ -199,6 +199,7 @@ int* solInicial(int tam, int seed) {
         solucionInicial[i] = aleatorio;
 
     }
+    delete[] usado;
     return solucionInicial;
 }
 
@@ -280,7 +281,6 @@ struct comparadorCandidatos {
         return cand1.first < cand2.first;
     }
 } comparador;
-
 int *randomGreedy(int nCasos, int **flujos, int **distancias, int seed) {
     // Definicion de datos previa
     int *potFlujos = potencialGRASP(flujos, nCasos);
@@ -383,7 +383,8 @@ int *randomGreedy(int nCasos, int **flujos, int **distancias, int seed) {
         asignado[LRC[pos].second.second].second = true;
         nAsignaciones++;
     }
-
+    delete[] potDistancias;
+    delete[] potFlujos;
     return solInicial;
 }
 
@@ -425,7 +426,7 @@ int greedy(int **flujos, int **distancias, int *&solGreedy, int nCasos) {
     int *potDistancias = potencial(distancias, nCasos);
     solGreedy = new int[nCasos];
     int cont = nCasos;
-    int cost;
+    int costo;
     while (cont > 0) {
         int may = mayor(potFlujos, nCasos);
         int men = menor(potDistancias, nCasos);
@@ -439,7 +440,9 @@ int greedy(int **flujos, int **distancias, int *&solGreedy, int nCasos) {
         }
     }
 
-    int costo;
+    delete[] potFlujos;
+    delete[] potDistancias;
+    
     if (cont == 0) {
         costo = coste(solGreedy, nCasos, flujos, distancias);
         return costo;
@@ -475,7 +478,7 @@ int *potencial(int **v, int &tam) {
  */
 int* mutar(int* solucion, int nCasos, int seed) {
     int tamSublista = nCasos / 4;
-    int srand(seed);
+    srand(seed);
     int aleatorio;
     int posIni = rand() % nCasos;
     int* usados = new int[tamSublista];
@@ -502,6 +505,7 @@ int* mutar(int* solucion, int nCasos, int seed) {
         }
         usados[aleatorio] = -1;
     }
+    delete[] usados;
     return solucion;
 
 }
@@ -531,5 +535,8 @@ int* ils(int nCasos, int **flujos, int **distancias, int seed) {
             costeAct = costeLocal;
         }
     }
+    delete[] solMutada;
+    delete[] soluInicial;
+    delete[] solLocal;
     return solActual;
 }
